@@ -49,7 +49,7 @@ export default function Register() {
       setLoading(true);
 
       const response = await fetch(
-        "http://192.168.0.105:5000/api/auth/register",
+        "http://192.168.0.105:3000/api/auth/register",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -72,7 +72,8 @@ export default function Register() {
 
       Alert.alert("Account created successfully");
       router.replace("/(main)/chats");
-    } catch {
+    } catch(error) {
+      console.log("register error: ", error)
       Alert.alert("Something went wrong");
     } finally {
       setLoading(false);
