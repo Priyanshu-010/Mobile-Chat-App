@@ -52,7 +52,6 @@ const Chats = () => {
     socket.emit("join", user?._id);
 
     socket.on("receiveMessage", () => {
-      // When message received → refresh conversations
       fetchConversations();
     });
 
