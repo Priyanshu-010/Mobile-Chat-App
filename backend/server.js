@@ -6,6 +6,8 @@ import { Server } from "socket.io";
 import authRoutes from "./routes/authRoute.js"
 import userRoutes from "./routes/userRoute.js"
 import messageRoutes from "./routes/messageRoute.js"
+import socketHandler from "./socket/socket.js";
+import { connectDB } from "./config/db.js";
 
 dotenv.config();
 
@@ -26,8 +28,11 @@ const io = new Server(server, {
   },
 });
 
+socketHandler(io);
+
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  connectDB()
 });

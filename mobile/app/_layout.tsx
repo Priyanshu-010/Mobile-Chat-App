@@ -10,6 +10,8 @@ import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import "./global.css"
+
 export const unstable_settings = {
   anchor: "(tabs)",
 };
@@ -21,7 +23,8 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <SafeAreaProvider>
         <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
+          {/* <Stack.Screen name="index"/> */}
           <Stack.Screen
             name="modal"
             options={{ presentation: "modal", title: "Modal" }}
