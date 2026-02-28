@@ -1,14 +1,32 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { Link } from 'expo-router'
+import { View, ActivityIndicator } from 'react-native'
+import React, { useContext, useEffect } from 'react'
+import {  useRouter } from 'expo-router'
+import { AuthContext } from '@/context/AuthContext'
 
-const chats = () => {
+const Index = () => {
+  const auth = useContext(AuthContext);
+
+  if (!auth) {
+    throw new Error("AuthContext not found");
+  }
+
+  const { user, loading } = auth;
+  const router = useRouter()
+
+  useEffect(()=>{
+    if(!loading){
+      if(user){
+        router.replace("/(main)/chats")
+      }else {
+        router.replace("/(auth)/login");
+      }
+    }
+  }, [user, loading, router])
   return (
     <View className='flex justify-center items-center min-h-screen'>
-      <Text className='text-white text-center text-5xl font-bold'>Hello My friend</Text>
-      <Link className='text-white text-center text-5xl font-bold' href="/modal">Modal</Link>
+      <ActivityIndicator size="large" />
     </View>
   )
 }
 
-export default chats
+export default Index
