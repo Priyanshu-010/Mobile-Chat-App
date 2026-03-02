@@ -33,6 +33,7 @@ const socketHandler = (io) => {
         await conversation.save();
 
         io.to(receiverId).emit("receiveMessage", message);
+        io.to(senderId).emit("receiveMessage", message);
 
       } catch (error) {
         console.log("Socket error:", error.message);

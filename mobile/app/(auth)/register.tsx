@@ -7,9 +7,8 @@ import {
   Alert,
 } from "react-native";
 import { useContext, useState } from "react";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { AuthContext } from "@/context/AuthContext";
-
 
 type User = {
   _id: string;
@@ -23,16 +22,15 @@ type RegisterResponse = {
   token: string;
 };
 
-
 export default function Register() {
   const router = useRouter();
   const auth = useContext(AuthContext);
-  
-    if (!auth) {
-      throw new Error("AuthContext not found");
-    }
-  
-    const { login } = auth;
+
+  if (!auth) {
+    throw new Error("AuthContext not found");
+  }
+
+  const { login } = auth;
 
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -58,7 +56,7 @@ export default function Register() {
             email,
             password,
           }),
-        }
+        },
       );
 
       const data: RegisterResponse = await response.json();
@@ -72,8 +70,8 @@ export default function Register() {
 
       Alert.alert("Account created successfully");
       router.replace("/(main)/chats");
-    } catch(error) {
-      console.log("register error: ", error)
+    } catch (error) {
+      console.log("register error: ", error);
       Alert.alert("Something went wrong");
     } finally {
       setLoading(false);
@@ -82,9 +80,7 @@ export default function Register() {
 
   return (
     <View className="flex-1 justify-center px-6 bg-black">
-      <Text className="text-white text-3xl font-bold mb-6">
-        Register
-      </Text>
+      <Text className="text-white text-3xl font-bold mb-6">Register</Text>
 
       <TextInput
         placeholder="Name"
@@ -95,6 +91,7 @@ export default function Register() {
       />
 
       <TextInput
+        keyboardType="email-address"
         placeholder="Email"
         placeholderTextColor="gray"
         value={email}
@@ -118,10 +115,16 @@ export default function Register() {
         {loading ? (
           <ActivityIndicator color="white" />
         ) : (
-          <Text className="text-white font-bold">
-            Register
-          </Text>
+          <Text className="text-white font-bold">Register</Text>
         )}
+      </Pressable>
+      <Pressable
+        onPress={() => router.push("/(auth)/register")}
+        className="mt-4"
+      >
+        <Text className="text-gray-400 text-center">
+          Already have an account? <Link href="/login">Login</Link>
+        </Text>
       </Pressable>
     </View>
   );
