@@ -39,7 +39,12 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       message: "Registration Successfully",
-      user: { _id: user._id, name: user.username, email: user.email },
+      user: {
+        _id: user._id,
+        name: user.username,
+        email: user.email,
+        profilePic: user.profilePic,
+      },
       token,
     });
   } catch (error) {
@@ -48,7 +53,6 @@ export const register = async (req, res) => {
   }
 };
 export const login = async (req, res) => {
-  const { email, password } = req.body;
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -77,7 +81,12 @@ export const login = async (req, res) => {
 
     res.status(200).json({
       message: "Login Successfully",
-      user: { _id: user._id, name: user.username, email: user.email },
+      user: {
+        _id: user._id,
+        name: user.username,
+        email: user.email,
+        profilePic: user.profilePic,
+      },
       token,
     });
   } catch (error) {

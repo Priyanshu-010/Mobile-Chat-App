@@ -31,4 +31,5 @@ const statusSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Status", statusSchema);
+const Status = mongoose.model("Status", statusSchema);
+export default Status

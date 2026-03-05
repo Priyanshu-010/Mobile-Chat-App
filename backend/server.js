@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import authRoutes from "./routes/authRoute.js"
 import userRoutes from "./routes/userRoute.js"
 import messageRoutes from "./routes/messageRoute.js"
+import statusRoutes from "./routes/statusRoutes.js"
 import socketHandler from "./socket/socket.js";
 import { connectDB } from "./config/db.js";
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/status", statusRoutes);
 
 const server = http.createServer(app);
 

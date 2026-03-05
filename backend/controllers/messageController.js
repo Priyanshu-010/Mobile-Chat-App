@@ -1,19 +1,19 @@
-import Message from "../models/Message.js"
-import Conversation from "../models/Conversation.js"
+import Message from "../models/Message.js";
+import Conversation from "../models/Conversation.js";
 
 export const getConversations = async (req, res) => {
   try {
     const conversations = await Conversation.find({
       participants: req.user.id,
     })
-      .populate("participants", "username email")
+      .populate("participants", "username profilePic")
       .populate("lastMessage")
       .sort({ updatedAt: -1 });
 
     res.status(200).json(conversations);
   } catch (error) {
-    res.status(500).json({ message: error.message });
     console.log("Error in getConversations Controller: ", error)
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -27,18 +27,57 @@ export const getMessages = async (req, res) => {
 
     if (!conversation) return res.json([]);
 
-    if (conversation.unreadFor?.toString() === req.user.id) {
-      conversation.unreadFor = null;
-      await conversation.save();
-    }
-
     const messages = await Message.find({
       conversationId: conversation._id,
     }).sort({ createdAt: 1 });
 
+    await Message.updateMany(
+      {
+        conversationId: conversation._id,
+        sender: userId,
+        status: { $ne: "read" },
+      },
+      { status: "read" }
+    );
+    conversation.unreadFor = null;
+    await conversation.save();
+
     res.status(200).json(messages);
   } catch (error) {
+    console.log("Error in getMessages controller: ", error)
     res.status(500).json({ message: error.message });
-    console.log("Error in getMesssages Controller: ", error)
+  }
+};
+
+export const sendMessage = async (req, res) => {
+  try {
+    const { receiverId, text, type = "text", mediaUrl = null } = req.body;
+
+    let conversation = await Conversation.findOne({
+      participants: { $all: [req.user.id, receiverId] },
+    });
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [req.user.id, receiverId],
+      });
+    }
+
+    const message = await Message.create({
+      conversationId: conversation._id,
+      sender: req.user.id,
+      text,
+      type,
+      mediaUrl,
+    });
+
+    conversation.lastMessage = message._id;
+    conversation.unreadFor = receiverId;
+    await conversation.save();
+
+    res.status(201).json(message);
+  } catch (error) {
+    console.log("Error in sendMessage Controller: ", error)
+    res.status(500).json({ message: error.message });
   }
 };
