@@ -12,7 +12,7 @@ export const getConversations = async (req, res) => {
 
     res.status(200).json(conversations);
   } catch (error) {
-    console.log("Error in getConversations Controller: ", error)
+    console.log("Error in getConversations Controller: ", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -37,14 +37,14 @@ export const getMessages = async (req, res) => {
         sender: userId,
         status: { $ne: "read" },
       },
-      { status: "read" }
+      { status: "read" },
     );
     conversation.unreadFor = null;
     await conversation.save();
 
     res.status(200).json(messages);
   } catch (error) {
-    console.log("Error in getMessages controller: ", error)
+    console.log("Error in getMessages controller: ", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -52,6 +52,13 @@ export const getMessages = async (req, res) => {
 export const sendMessage = async (req, res) => {
   try {
     const { receiverId, text, type = "text", mediaUrl = null } = req.body;
+    if (type === "text" && !text) {
+      return res.status(400).json({ message: "Text required" });
+    }
+
+    if (type !== "text" && !mediaUrl) {
+      return res.status(400).json({ message: "Media required" });
+    }
 
     let conversation = await Conversation.findOne({
       participants: { $all: [req.user.id, receiverId] },
@@ -77,7 +84,7 @@ export const sendMessage = async (req, res) => {
 
     res.status(201).json(message);
   } catch (error) {
-    console.log("Error in sendMessage Controller: ", error)
+    console.log("Error in sendMessage Controller: ", error);
     res.status(500).json({ message: error.message });
   }
 };
