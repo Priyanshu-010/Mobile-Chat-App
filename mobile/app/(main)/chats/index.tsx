@@ -6,163 +6,161 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Pressable,
+  Image,
 } from "react-native";
+
 import { useRouter } from "expo-router";
-import { AuthContext } from "../../../context/AuthContext";
+import { AuthContext } from "@/context/AuthContext";
 import { io } from "socket.io-client";
 
 const SOCKET_URL = "http://192.168.0.105:3000";
 
 let socket: any;
 
-const Chats = () => {
+export default function Chats() {
   const auth = useContext(AuthContext);
-
-  if (!auth) {
-    throw new Error("AuthContext not found");
-  }
+  if (!auth) throw new Error("AuthContext not found");
 
   const { user, token, logout } = auth;
 
-  const [users, setUsers] = useState<any[]>([]);
+  const [conversations, setConversations] = useState<any[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   const router = useRouter();
 
-  
-
   useEffect(() => {
     const fetchConversations = async () => {
-    try {
-      const response = await fetch(
-        "http://192.168.0.105:3000/api/messages/conversations",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      try {
+        const res = await fetch(
+          "http://192.168.0.105:3000/api/messages/conversations",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        }
-      );
+        );
 
-      const data = await response.json();
-      setUsers(data);
-    } catch (error) {
-      console.log("Error fetching users:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        const data = await res.json();
+        setConversations(data);
+      } catch (err) {
+        console.log("Conversation error", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchConversations();
 
     socket = io(SOCKET_URL);
 
     socket.emit("join", user?._id);
 
-    // receive new messages
     socket.on("receiveMessage", () => {
       fetchConversations();
     });
 
-    // receive online users
     socket.on("onlineUsers", (users: string[]) => {
       setOnlineUsers(users);
     });
 
-    return () => {
-      socket.disconnect();
-    };
+    return () => socket.disconnect();
   }, [token, user]);
 
   const handleLogout = async () => {
-    logout();
-    router.push("/(auth)/login");
+    await logout();
+    router.replace("/(auth)/login");
   };
 
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" color="#4B5563" />
+        <ActivityIndicator size="large" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-white p-4">
-      {/* HEADER */}
-
-      <View className="m-4 p-4 flex flex-row justify-between items-center gap-6">
+    <View className="flex-1 bg-white">
+      <View className="flex-row justify-between items-center p-4 border-b">
         <Text className="text-2xl font-bold">Chatty</Text>
 
-        <View className="flex flex-row justify-between items-center gap-3">
+        <View className="flex-row gap-3">
           <TouchableOpacity
             onPress={() => router.push("/(main)/chats/newChat")}
-            className="bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+            className="bg-blue-500 w-12 h-12 rounded-full items-center justify-center"
           >
-            <Text className="text-white text-2xl">+</Text>
+            <Text className="text-white text-xl">+</Text>
           </TouchableOpacity>
 
           <Pressable
             onPress={handleLogout}
-            className="w-auto h-auto border border-gray-500 p-3 rounded-2xl"
+            className="border px-3 py-2 rounded-lg"
           >
-            <Text className="text-xl">Logout</Text>
+            <Text>Logout</Text>
           </Pressable>
         </View>
       </View>
 
-      {/* CHAT LIST */}
-
       <FlatList
-        data={users}
+        data={conversations}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => {
           const otherUser = item.participants.find(
-            (p: any) => p._id !== user?._id
+            (p: any) => p._id !== user?._id,
           );
 
-          const isUnread = item.unreadFor === user?._id;
           const isOnline = onlineUsers.includes(otherUser._id);
+          const isUnread = item.unreadFor === user?._id;
 
           return (
             <TouchableOpacity
-              className="p-4 border-b border-gray-200"
+              className="flex-row items-center p-4 border-b"
               onPress={() =>
                 router.push({
                   pathname: "/(main)/chats/[userId]",
                   params: {
                     userId: otherUser._id,
                     name: otherUser.username,
+                    profilePic: otherUser.profilePic
                   },
                 })
               }
             >
-              <View className="flex-row justify-between items-center">
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-lg font-semibold">
-                    {otherUser.username}
-                  </Text>
+              <Image
+                source={{
+                  uri: otherUser.profilePic || "https://i.pravatar.cc/100",
+                }}
+                className="w-12 h-12 rounded-full"
+              />
 
-                  {isOnline && (
-                    <View className="w-2 h-2 bg-green-500 rounded-full" />
+              <View className="flex-1 ml-3">
+                <View className="flex-row justify-between">
+                  <View className="flex-row items-center gap-2">
+                    <Text className="text-lg font-semibold">
+                      {otherUser.username}
+                    </Text>
+
+                    {isOnline && (
+                      <View className="w-2 h-2 bg-green-500 rounded-full" />
+                    )}
+                  </View>
+
+                  {isUnread && (
+                    <View className="w-3 h-3 bg-blue-500 rounded-full" />
                   )}
                 </View>
 
-                {isUnread && (
-                  <View className="w-3 h-3 bg-blue-500 rounded-full" />
+                {item.lastMessage && (
+                  <Text className="text-gray-500 mt-1" numberOfLines={1}>
+                    {item.lastMessage.text || "Media"}
+                  </Text>
                 )}
               </View>
-
-              {item.lastMessage && (
-                <Text className="text-gray-500 mt-1" numberOfLines={1}>
-                  {item.lastMessage.text || "Media"}
-                </Text>
-              )}
             </TouchableOpacity>
           );
         }}
       />
     </View>
   );
-};
-
-export default Chats;
+}

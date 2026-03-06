@@ -61,6 +61,7 @@ export default function Login() {
         return;
       }
 
+      console.log(data.user)
       await login(data.user, data.token);
 
       router.replace("/(main)/chats");
