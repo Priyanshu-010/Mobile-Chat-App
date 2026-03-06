@@ -108,8 +108,6 @@ export default function ChatScreen() {
     }
   }, [messages, loadingMessages]);
 
-  /* ---------------- TEXT MESSAGE ---------------- */
-
   const sendText = () => {
     if (!text.trim()) return;
 
@@ -122,8 +120,6 @@ export default function ChatScreen() {
 
     setText("");
   };
-
-  /* ---------------- IMAGE MESSAGE ---------------- */
 
   const pickImage = async () => {
     try {
@@ -150,8 +146,6 @@ export default function ChatScreen() {
       console.log(error);
     }
   };
-
-  /* ---------------- VOICE RECORDING ---------------- */
 
   const startRecording = async () => {
     try {
@@ -204,8 +198,6 @@ export default function ChatScreen() {
     }
   };
 
-  /* ---------------- PLAY VOICE ---------------- */
-
   const playAudio = async (url: string, id: string) => {
     try {
       setPlayingId(id);
@@ -223,8 +215,6 @@ export default function ChatScreen() {
       console.log(err);
     }
   };
-
-  /* ---------------- UTILITIES ---------------- */
 
   const formatTime = (date: string) => {
     const d = new Date(date);
@@ -245,15 +235,13 @@ export default function ChatScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View className="flex-1 bg-white">
-        {/* HEADER */}
-
         <View className="p-4 border-b">
           <Image
-                source={{
-                  uri: profilePic || "https://i.pravatar.cc/100",
-                }}
-                className="w-12 h-12 rounded-full"
-              />
+            source={{
+              uri: profilePic || "https://i.pravatar.cc/100",
+            }}
+            className="w-12 h-12 rounded-full"
+          />
           <Text className="text-lg font-bold">{name}</Text>
 
           {typing ? (
@@ -266,8 +254,6 @@ export default function ChatScreen() {
           {isOnline && <View className="w-3 h-3 bg-green-500 rounded-full" />}
         </View>
 
-        {/* MESSAGES */}
-
         {loadingMessages ? (
           <View className="flex-1 justify-center items-center">
             <Text>Loading chat...</Text>
@@ -278,6 +264,9 @@ export default function ChatScreen() {
             data={messages}
             keyExtractor={(item) => item._id}
             contentContainerStyle={{ padding: 16 }}
+            onContentSizeChange={() =>
+              flatListRef.current?.scrollToEnd({ animated: true })
+            }
             renderItem={({ item }) => {
               const isMe = item.sender === user?._id;
 
@@ -288,7 +277,6 @@ export default function ChatScreen() {
                       isMe ? "bg-blue-500" : "bg-gray-200"
                     }`}
                   >
-                    {/* IMAGE */}
 
                     {item.type === "image" && item.mediaUrl && (
                       <Image
@@ -297,7 +285,6 @@ export default function ChatScreen() {
                       />
                     )}
 
-                    {/* AUDIO */}
 
                     {item.type === "voice" && (
                       <TouchableOpacity
@@ -307,12 +294,11 @@ export default function ChatScreen() {
                         <Text>
                           {playingId === item._id
                             ? "Playing..."
-                            : "▶ Play voice"}
+                            : "Play voice"}
                         </Text>
                       </TouchableOpacity>
                     )}
 
-                    {/* TEXT */}
 
                     {item.text && (
                       <Text className={isMe ? "text-white" : "text-black"}>
@@ -320,7 +306,6 @@ export default function ChatScreen() {
                       </Text>
                     )}
 
-                    {/* TIME + STATUS */}
 
                     <View className="flex-row justify-end items-center mt-1 gap-1">
                       <Text className="text-xs text-gray-200">
@@ -340,26 +325,22 @@ export default function ChatScreen() {
           />
         )}
 
-        {/* INPUT BAR */}
 
         <View className="flex-row items-center p-3 border-t">
-          {/* IMAGE */}
 
           <TouchableOpacity onPress={pickImage} className="px-2">
             <Text className="text-xl">📎</Text>
           </TouchableOpacity>
 
-          {/* VOICE */}
 
           <TouchableOpacity
             onPressIn={startRecording}
             onPressOut={stopRecording}
             className="px-2"
           >
-            <Text className="text-xl">{recording ? "🎙️..." : "🎤"}</Text>
+            <Text className="text-xl">{recording ? "🎙️" : "🎤"}</Text>
           </TouchableOpacity>
 
-          {/* TEXT */}
 
           <TextInput
             value={text}

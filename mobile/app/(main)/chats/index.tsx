@@ -5,7 +5,6 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  Pressable,
   Image,
 } from "react-native";
 
@@ -21,7 +20,7 @@ export default function Chats() {
   const auth = useContext(AuthContext);
   if (!auth) throw new Error("AuthContext not found");
 
-  const { user, token, logout } = auth;
+  const { user, token } = auth;
 
   const [conversations, setConversations] = useState<any[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
@@ -63,14 +62,10 @@ export default function Chats() {
     socket.on("onlineUsers", (users: string[]) => {
       setOnlineUsers(users);
     });
-
     return () => socket.disconnect();
   }, [token, user]);
 
-  const handleLogout = async () => {
-    await logout();
-    router.replace("/(auth)/login");
-  };
+
 
   if (loading) {
     return (
@@ -93,12 +88,7 @@ export default function Chats() {
             <Text className="text-white text-xl">+</Text>
           </TouchableOpacity>
 
-          <Pressable
-            onPress={handleLogout}
-            className="border px-3 py-2 rounded-lg"
-          >
-            <Text>Logout</Text>
-          </Pressable>
+          
         </View>
       </View>
 

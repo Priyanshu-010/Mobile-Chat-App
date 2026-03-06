@@ -18,7 +18,7 @@ export default function StatusScreen() {
   if (!auth) throw new Error("AuthContext not found");
 
   const { token, user } = auth;
-  console.log(user?.profilePic)
+  // console.log(user?.profilePic)
 
   const [status, setStatus] = useState([]);
   const [myStatuses, setMyStatuses] = useState([]);
@@ -40,22 +40,8 @@ export default function StatusScreen() {
       });
 
       const myData = await myRes.json();
-       const grouped: any = {};
-
-      data.forEach((s: any) => {
-        const id = s.user._id;
-
-        if (!grouped[id]) {
-          grouped[id] = {
-            user: s.user,
-            statuses: [],
-          };
-        }
-
-        grouped[id].statuses.push(s);
-      });
-
-      setStatus(Object.values(grouped));
+      setStatus(data)
+      setMyStatuses(myData)
     } catch (error) {
       console.log("Error in useEffect fetching status: ", error);
     } finally {

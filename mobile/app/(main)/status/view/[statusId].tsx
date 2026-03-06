@@ -54,7 +54,7 @@ const Status = () => {
         className="absolute top-16 right-5 z-10"
         onPress={() => router.replace("/(main)/status")}
       >
-        <Text className="text-white text-xl">✕</Text>
+        <Text className="text-white text-xl">X</Text>
       </TouchableOpacity>
 
       {type === "image" && (
