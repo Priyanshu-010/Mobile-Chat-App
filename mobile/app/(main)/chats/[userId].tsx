@@ -15,7 +15,7 @@ import { Audio } from "expo-av";
 
 import { useLocalSearchParams } from "expo-router";
 import { AuthContext } from "@/context/AuthContext";
-import { uploadToCloudinary } from "../../../services/cloudinary";
+import { uploadToCloudinary } from "@/services/cloudinary";
 import { io } from "socket.io-client";
 
 const SOCKET_URL = "http://192.168.0.105:3000";
@@ -49,7 +49,7 @@ export default function ChatScreen() {
     const fetchMessages = async () => {
       try {
         const res = await fetch(
-          `http://192.168.0.105:3000/api/messages/${userId}`,
+          `${SOCKET_URL}/api/messages/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -80,6 +80,10 @@ export default function ChatScreen() {
 
         if (msg.sender === userId) {
           socket.emit("markAsRead", { messageId: msg._id });
+          // Background fetch to ensure conversation DB unread flag clears if message received while in chat
+          fetch(`${SOCKET_URL}/api/messages/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }).catch(err => console.log(err));
         }
       }
     });
@@ -277,14 +281,12 @@ export default function ChatScreen() {
                       isMe ? "bg-blue-500" : "bg-gray-200"
                     }`}
                   >
-
                     {item.type === "image" && item.mediaUrl && (
                       <Image
                         source={{ uri: item.mediaUrl }}
                         className="w-48 h-48 rounded-lg mb-2"
                       />
                     )}
-
 
                     {item.type === "voice" && (
                       <TouchableOpacity
@@ -299,13 +301,11 @@ export default function ChatScreen() {
                       </TouchableOpacity>
                     )}
 
-
                     {item.text && (
                       <Text className={isMe ? "text-white" : "text-black"}>
                         {item.text}
                       </Text>
                     )}
-
 
                     <View className="flex-row justify-end items-center mt-1 gap-1">
                       <Text className="text-xs text-gray-200">
@@ -325,13 +325,10 @@ export default function ChatScreen() {
           />
         )}
 
-
         <View className="flex-row items-center p-3 border-t">
-
           <TouchableOpacity onPress={pickImage} className="px-2">
             <Text className="text-xl">📎</Text>
           </TouchableOpacity>
-
 
           <TouchableOpacity
             onPressIn={startRecording}
@@ -340,7 +337,6 @@ export default function ChatScreen() {
           >
             <Text className="text-xl">{recording ? "🎙️" : "🎤"}</Text>
           </TouchableOpacity>
-
 
           <TextInput
             value={text}
@@ -358,8 +354,6 @@ export default function ChatScreen() {
             placeholder="Type a message..."
             className="flex-1 bg-gray-100 rounded-full px-4 py-2 ml-2"
           />
-
-          {/* SEND */}
 
           <TouchableOpacity
             onPress={sendText}

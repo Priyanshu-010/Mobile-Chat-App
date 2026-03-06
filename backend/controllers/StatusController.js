@@ -1,6 +1,5 @@
 import Status from "../models/Status.js";
 
-
 export const uploadStatus = async (req, res) => {
   try {
     const { mediaUrl, type } = req.body;
@@ -28,7 +27,9 @@ export const getMyStatus = async (req, res) => {
   try {
     const statuses = await Status.find({
       user: req.user.id,
-    }).sort({ createdAt: -1 });
+    })
+      .populate("viewers", "username profilePic")
+      .sort({ createdAt: -1 });
 
     res.json(statuses);
   } catch (error) {

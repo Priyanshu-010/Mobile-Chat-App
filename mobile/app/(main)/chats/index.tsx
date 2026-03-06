@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { AuthContext } from "@/context/AuthContext";
 import { io } from "socket.io-client";
 
@@ -28,29 +28,32 @@ export default function Chats() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchConversations = async () => {
-      try {
-        const res = await fetch(
-          "http://192.168.0.105:3000/api/messages/conversations",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+  const fetchConversations = useCallback(async () => {
+    try {
+      const res = await fetch(`${SOCKET_URL}/api/messages/conversations`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const data = await res.json();
-        setConversations(data);
-      } catch (err) {
-        console.log("Conversation error", err);
-      } finally {
-        setLoading(false);
+      const data = await res.json();
+      setConversations(data);
+    } catch (err) {
+      console.log("Conversation error", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (token) {
+        fetchConversations();
       }
-    };
+    }, [token, fetchConversations])
+  );
 
-    fetchConversations();
-
+  useEffect(() => {
     socket = io(SOCKET_URL);
 
     socket.emit("join", user?._id);
@@ -62,10 +65,9 @@ export default function Chats() {
     socket.on("onlineUsers", (users: string[]) => {
       setOnlineUsers(users);
     });
+    
     return () => socket.disconnect();
-  }, [token, user]);
-
-
+  }, [token, user, fetchConversations]);
 
   if (loading) {
     return (
@@ -87,8 +89,6 @@ export default function Chats() {
           >
             <Text className="text-white text-xl">+</Text>
           </TouchableOpacity>
-
-          
         </View>
       </View>
 
@@ -99,6 +99,8 @@ export default function Chats() {
           const otherUser = item.participants.find(
             (p: any) => p._id !== user?._id,
           );
+
+          if (!otherUser) return null;
 
           const isOnline = onlineUsers.includes(otherUser._id);
           const isUnread = item.unreadFor === user?._id;
@@ -112,7 +114,7 @@ export default function Chats() {
                   params: {
                     userId: otherUser._id,
                     name: otherUser.username,
-                    profilePic: otherUser.profilePic
+                    profilePic: otherUser.profilePic,
                   },
                 })
               }
