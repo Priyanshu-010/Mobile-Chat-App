@@ -172,7 +172,6 @@ export default function ProfileScreen() {
         />
       </View>
 
-      {/* BIO */}
       <View className="mt-6">
         <Text className="text-gray-500 mb-1">Bio</Text>
 

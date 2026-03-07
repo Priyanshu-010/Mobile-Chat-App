@@ -39,7 +39,6 @@ export default function StatusScreen() {
       });
       const myData = await myRes.json();
 
-      // Group statuses by user
       if (Array.isArray(data)) {
         const grouped = data.reduce((acc: any, currentStatus: any) => {
           const userId = currentStatus.user._id;
@@ -80,7 +79,6 @@ export default function StatusScreen() {
         });
         const myData = await myRes.json();
 
-        // Group statuses by user
         if (Array.isArray(data)) {
           const grouped = data.reduce((acc: any, currentStatus: any) => {
             const userId = currentStatus.user._id;

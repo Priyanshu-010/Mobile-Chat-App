@@ -81,7 +81,6 @@ export default function ChatScreen() {
 
         if (msg.sender === userId) {
           socket.emit("markAsRead", { messageId: msg._id });
-          // Background fetch to ensure conversation DB unread flag clears if message received while in chat
           fetch(`${SOCKET_URL}/api/messages/${userId}`, {
             headers: { Authorization: `Bearer ${token}` },
           }).catch(err => console.log(err));

@@ -30,12 +30,10 @@ const Status = () => {
 
   const isMine = isMineStr === "true";
 
-  // Safely parse statuses array to prevent white screen crashes
   const statuses = useMemo(() => {
     if (!statusGroupStr) return [];
     try {
       const parsed = JSON.parse(statusGroupStr);
-      // Ensure it's always treated as an array even if it's a single object
       return Array.isArray(parsed) ? parsed : [parsed];
     } catch (error) {
       console.error("Error parsing status group:", error);
@@ -46,6 +44,11 @@ const Status = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showViewers, setShowViewers] = useState(false);
   const videoRef = useRef<Video>(null);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setShowViewers(false);
+  }, [statusGroupStr]);
 
   const currentStatus = statuses[currentIndex];
 
@@ -84,12 +87,11 @@ const Status = () => {
     };
     viewStatus();
 
-    // Pause timer if viewers modal is open
     if (showViewers) return;
 
     const timer = setTimeout(() => {
       handleNext();
-    }, 10000); // 10 seconds per status
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [currentIndex, currentStatus, showViewers, isMine, token, handleNext]);
@@ -103,7 +105,6 @@ const Status = () => {
     }
   };
 
-  // Fallback UI to prevent blank white screen if data is parsing or missing
   if (!currentStatus) {
     return (
       <View className="flex-1 bg-black justify-center items-center">
@@ -120,7 +121,6 @@ const Status = () => {
 
   return (
     <View className="flex-1 bg-black justify-center items-center">
-      {/* Progress Bars */}
       <View className="absolute top-10 w-full flex-row px-2 gap-1 z-20">
         {statuses.map((_: any, index: number) => (
           <View
@@ -136,7 +136,6 @@ const Status = () => {
         ))}
       </View>
 
-      {/* Header */}
       <View className="absolute top-16 w-full flex-row items-center justify-between px-5 z-20 pointer-events-none">
         <Text className="text-white text-lg font-bold shadow-sm">
           {username}
@@ -149,7 +148,6 @@ const Status = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Media Content */}
       <TouchableWithoutFeedback onPress={handlePress}>
         <View className="w-full h-full justify-center items-center bg-black">
           {currentStatus.type === "image" && (
@@ -165,7 +163,7 @@ const Status = () => {
               ref={videoRef}
               source={{ uri: currentStatus.mediaUrl }}
               className="w-full h-full"
-              shouldPlay={!showViewers} // Pause video if viewers modal is open
+              shouldPlay={!showViewers} 
               isLooping={false}
               useNativeControls={false}
             />
@@ -185,6 +183,7 @@ const Status = () => {
         </TouchableOpacity>
       )}
 
+      {/* Viewers Bottom Modal */}
       <Modal visible={showViewers} animationType="slide" transparent={true}>
         <View className="flex-1 justify-end bg-black/50">
           <View className="bg-white rounded-t-3xl h-2/3 p-5">
