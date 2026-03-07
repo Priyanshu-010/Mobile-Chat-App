@@ -56,7 +56,7 @@ export default function Register() {
             email,
             password,
           }),
-        },
+        }
       );
 
       const data: RegisterResponse = await response.json();
@@ -79,53 +79,67 @@ export default function Register() {
   };
 
   return (
-    <View className="flex-1 justify-center px-6 bg-black">
-      <Text className="text-white text-3xl font-bold mb-6">Register</Text>
+    <View className="flex-1 justify-center px-8 bg-[#0a0a0a]">
+      <View className="mb-10">
+        <Text className="text-white text-4xl font-extrabold tracking-tight mb-2">
+          Create Account
+        </Text>
+        <Text className="text-gray-400 text-base">
+          Sign up to get started with messaging
+        </Text>
+      </View>
 
-      <TextInput
-        placeholder="Name"
-        placeholderTextColor="gray"
-        value={name}
-        onChangeText={setName}
-        className="bg-gray-800 text-white p-4 rounded mb-4"
-      />
+      <View className="space-y-4">
+        <TextInput
+          placeholder="Full Name"
+          placeholderTextColor="#6b7280"
+          value={name}
+          onChangeText={setName}
+          className="bg-[#171717] border border-[#262626] text-white px-5 py-4 rounded-2xl text-base mb-4"
+        />
 
-      <TextInput
-        keyboardType="email-address"
-        placeholder="Email"
-        placeholderTextColor="gray"
-        value={email}
-        onChangeText={setEmail}
-        className="bg-gray-800 text-white p-4 rounded mb-4"
-      />
+        <TextInput
+          keyboardType="email-address"
+          placeholder="Email address"
+          placeholderTextColor="#6b7280"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          className="bg-[#171717] border border-[#262626] text-white px-5 py-4 rounded-2xl text-base mb-4"
+        />
 
-      <TextInput
-        placeholder="Password"
-        placeholderTextColor="gray"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        className="bg-gray-800 text-white p-4 rounded mb-6"
-      />
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor="#6b7280"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          className="bg-[#171717] border border-[#262626] text-white px-5 py-4 rounded-2xl text-base mb-6"
+        />
+      </View>
 
       <Pressable
         onPress={handleRegister}
-        className="bg-blue-600 p-4 rounded items-center"
+        disabled={loading}
+        className={`bg-blue-600 py-4 rounded-2xl items-center shadow-sm shadow-blue-900/20 ${
+          loading ? "opacity-70" : "active:opacity-80"
+        }`}
       >
         {loading ? (
           <ActivityIndicator color="white" />
         ) : (
-          <Text className="text-white font-bold">Register</Text>
+          <Text className="text-white font-semibold text-lg">Register</Text>
         )}
       </Pressable>
-      <Pressable
-        onPress={() => router.push("/(auth)/register")}
-        className="mt-4"
-      >
-        <Text className="text-gray-400 text-center">
-          Already have an account? <Link href="/login">Login</Link>
-        </Text>
-      </Pressable>
+
+      <View className="mt-8 flex-row justify-center items-center">
+        <Text className="text-gray-400 text-base">Already have an account? </Text>
+        <Link href="/(auth)/login" asChild>
+          <Pressable>
+            <Text className="text-blue-500 font-semibold text-base">Login</Text>
+          </Pressable>
+        </Link>
+      </View>
     </View>
   );
 }

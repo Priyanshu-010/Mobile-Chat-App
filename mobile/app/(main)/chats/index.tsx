@@ -72,29 +72,28 @@ export default function Chats() {
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#2563eb" />
       </View>
     );
   }
 
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row justify-between items-center p-4 border-b">
-        <Text className="text-2xl font-bold">Chatty</Text>
+      <View className="flex-row justify-between items-center px-12 pt-12 pb-4 border-b border-gray-100">
+        <Text className="text-3xl font-extrabold text-gray-900">Chatty</Text>
 
-        <View className="flex-row gap-3">
-          <TouchableOpacity
-            onPress={() => router.push("/(main)/chats/newChat")}
-            className="bg-blue-500 w-12 h-12 rounded-full items-center justify-center"
-          >
-            <Text className="text-white text-xl">+</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={() => router.push("/(main)/chats/newChat")}
+          className="bg-blue-600 w-11 h-11 rounded-full items-center justify-center shadow-sm shadow-blue-500/30"
+        >
+          <Text className="text-white text-2xl leading-none -mt-1">+</Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
         data={conversations}
         keyExtractor={(item) => item._id}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => {
           const otherUser = item.participants.find(
             (p: any) => p._id !== user?._id,
@@ -107,7 +106,7 @@ export default function Chats() {
 
           return (
             <TouchableOpacity
-              className="flex-row items-center p-4 border-b"
+              className="flex-row items-center px-6 py-4 border-b border-gray-50 active:bg-gray-50"
               onPress={() =>
                 router.push({
                   pathname: "/(main)/chats/[userId]",
@@ -119,33 +118,35 @@ export default function Chats() {
                 })
               }
             >
-              <Image
-                source={{
-                  uri: otherUser.profilePic || "https://i.pravatar.cc/100",
-                }}
-                className="w-12 h-12 rounded-full"
-              />
+              <View className="relative">
+                <Image
+                  source={{
+                    uri: otherUser.profilePic || "https://i.pravatar.cc/100",
+                  }}
+                  className="w-14 h-14 rounded-full bg-gray-200"
+                />
+                {isOnline && (
+                  <View className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full" />
+                )}
+              </View>
 
-              <View className="flex-1 ml-3">
-                <View className="flex-row justify-between">
-                  <View className="flex-row items-center gap-2">
-                    <Text className="text-lg font-semibold">
-                      {otherUser.username}
-                    </Text>
-
-                    {isOnline && (
-                      <View className="w-2 h-2 bg-green-500 rounded-full" />
-                    )}
-                  </View>
+              <View className="flex-1 ml-4">
+                <View className="flex-row justify-between items-center mb-1">
+                  <Text className="text-lg font-semibold text-gray-900" numberOfLines={1}>
+                    {otherUser.username}
+                  </Text>
 
                   {isUnread && (
-                    <View className="w-3 h-3 bg-blue-500 rounded-full" />
+                    <View className="w-3 h-3 bg-blue-600 rounded-full" />
                   )}
                 </View>
 
                 {item.lastMessage && (
-                  <Text className="text-gray-500 mt-1" numberOfLines={1}>
-                    {item.lastMessage.text || "Media"}
+                  <Text 
+                    className={`text-sm ${isUnread ? 'text-gray-900 font-medium' : 'text-gray-500'}`} 
+                    numberOfLines={1}
+                  >
+                    {item.lastMessage.text || "📷 Media message"}
                   </Text>
                 )}
               </View>

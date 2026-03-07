@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  ActivityIndicator,
 } from "react-native";
 
 import * as ImagePicker from "expo-image-picker";
@@ -238,29 +239,35 @@ export default function ChatScreen() {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View className="flex-1 bg-white">
-        <View className="p-4 border-b">
+      <View className="flex-1 bg-gray-50">
+        <View className="flex-row items-center px-4 pt-8 pb-4 bg-white border-b border-gray-100 z-10">
           <Image
             source={{
               uri: profilePic || "https://i.pravatar.cc/100",
             }}
-            className="w-12 h-12 rounded-full"
+            className="w-10 h-10 rounded-full bg-gray-200"
           />
-          <Text className="text-lg font-bold">{name}</Text>
-
-          {typing ? (
-            <Text className="text-green-600 text-sm">typing...</Text>
-          ) : isOnline ? (
-            <Text className="text-green-600 text-sm">online</Text>
-          ) : (
-            <Text className="text-gray-400 text-sm">offline</Text>
-          )}
-          {isOnline && <View className="w-3 h-3 bg-green-500 rounded-full" />}
+          <View className="ml-3 flex-1">
+            <Text className="text-lg font-bold text-gray-900">{name}</Text>
+            
+            <View className="flex-row items-center">
+              {isOnline && !typing && (
+                <View className="w-2 h-2 bg-green-500 rounded-full mr-1.5" />
+              )}
+              {typing ? (
+                <Text className="text-blue-600 text-xs font-medium">typing...</Text>
+              ) : isOnline ? (
+                <Text className="text-gray-500 text-xs font-medium">Online</Text>
+              ) : (
+                <Text className="text-gray-400 text-xs">Offline</Text>
+              )}
+            </View>
+          </View>
         </View>
 
         {loadingMessages ? (
           <View className="flex-1 justify-center items-center">
-            <Text>Loading chat...</Text>
+            <ActivityIndicator size="large" color="#2563eb" />
           </View>
         ) : (
           <FlatList
@@ -268,6 +275,7 @@ export default function ChatScreen() {
             data={messages}
             keyExtractor={(item) => item._id}
             contentContainerStyle={{ padding: 16 }}
+            showsVerticalScrollIndicator={false}
             onContentSizeChange={() =>
               flatListRef.current?.scrollToEnd({ animated: true })
             }
@@ -277,43 +285,46 @@ export default function ChatScreen() {
               return (
                 <View className={`mb-3 ${isMe ? "items-end" : "items-start"}`}>
                   <View
-                    className={`px-4 py-2 rounded-2xl max-w-[75%] ${
-                      isMe ? "bg-blue-500" : "bg-gray-200"
+                    className={`px-4 py-3 rounded-2xl max-w-[80%] shadow-sm ${
+                      isMe ? "bg-blue-600 rounded-tr-sm" : "bg-white border border-gray-100 rounded-tl-sm"
                     }`}
                   >
                     {item.type === "image" && item.mediaUrl && (
                       <Image
                         source={{ uri: item.mediaUrl }}
-                        className="w-48 h-48 rounded-lg mb-2"
+                        className="w-48 h-48 rounded-xl mb-2"
                       />
                     )}
 
                     {item.type === "voice" && (
                       <TouchableOpacity
                         onPress={() => playAudio(item.mediaUrl, item._id)}
-                        className="bg-black/10 px-4 py-2 rounded-lg"
+                        className={`px-4 py-2.5 rounded-xl flex-row items-center ${
+                          isMe ? "bg-blue-700/50" : "bg-gray-100"
+                        }`}
                       >
-                        <Text>
+                        <Text className="mr-2">{playingId === item._id ? "⏸️" : "▶️"}</Text>
+                        <Text className={`font-medium ${isMe ? "text-white" : "text-gray-800"}`}>
                           {playingId === item._id
                             ? "Playing..."
-                            : "Play voice"}
+                            : "Voice Message"}
                         </Text>
                       </TouchableOpacity>
                     )}
 
                     {item.text && (
-                      <Text className={isMe ? "text-white" : "text-black"}>
+                      <Text className={`text-base ${isMe ? "text-white" : "text-gray-800"}`}>
                         {item.text}
                       </Text>
                     )}
 
-                    <View className="flex-row justify-end items-center mt-1 gap-1">
-                      <Text className="text-xs text-gray-200">
+                    <View className="flex-row justify-end items-center mt-1.5 gap-1">
+                      <Text className={`text-[10px] ${isMe ? "text-blue-100" : "text-gray-400"}`}>
                         {formatTime(item.createdAt)}
                       </Text>
 
                       {isMe && (
-                        <Text className="text-xs text-gray-200">
+                        <Text className="text-[10px] text-blue-100">
                           {renderStatus(item)}
                         </Text>
                       )}
@@ -325,17 +336,19 @@ export default function ChatScreen() {
           />
         )}
 
-        <View className="flex-row items-center p-3 border-t">
-          <TouchableOpacity onPress={pickImage} className="px-2">
-            <Text className="text-xl">📎</Text>
+        <View className="flex-row items-center px-3 py-2 bg-white border-t border-gray-100 pb-6">
+          <TouchableOpacity onPress={pickImage} className="p-2 mr-1 rounded-full active:bg-gray-100">
+            <Text className="text-2xl">📎</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPressIn={startRecording}
             onPressOut={stopRecording}
-            className="px-2"
+            className={`p-2 mr-2 rounded-full items-center justify-center ${
+              recording ? "bg-red-100" : "active:bg-gray-100"
+            }`}
           >
-            <Text className="text-xl">{recording ? "🎙️" : "🎤"}</Text>
+            <Text className="text-2xl">{recording ? "🎙️" : "🎤"}</Text>
           </TouchableOpacity>
 
           <TextInput
@@ -351,15 +364,16 @@ export default function ChatScreen() {
                 });
               }, 1000);
             }}
-            placeholder="Type a message..."
-            className="flex-1 bg-gray-100 rounded-full px-4 py-2 ml-2"
+            placeholder="Message..."
+            placeholderTextColor="#9ca3af"
+            className="flex-1 bg-gray-100 text-gray-900 rounded-full px-4 py-3 text-base border border-gray-200"
           />
 
           <TouchableOpacity
             onPress={sendText}
-            className="ml-2 bg-blue-500 px-4 py-2 rounded-full"
+            className="ml-2 bg-blue-600 px-5 py-3 rounded-full shadow-sm shadow-blue-500/30"
           >
-            <Text className="text-white font-semibold">Send</Text>
+            <Text className="text-white font-bold text-sm">Send</Text>
           </TouchableOpacity>
         </View>
       </View>

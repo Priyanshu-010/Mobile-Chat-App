@@ -61,12 +61,11 @@ export default function Login() {
         return;
       }
 
-      // console.log(data.user)
       await login(data.user, data.token);
 
       router.replace("/(main)/chats");
-    } catch(error){
-      console.log("Login error: ", error)
+    } catch (error) {
+      console.log("Login error: ", error);
       Alert.alert("Something went wrong");
     } finally {
       setLoading(false);
@@ -74,50 +73,59 @@ export default function Login() {
   };
 
   return (
-    <View className="flex-1 justify-center px-6 bg-black">
-      <Text className="text-white text-3xl font-bold mb-6">
-        Login
-      </Text>
+    <View className="flex-1 justify-center px-8 bg-[#0a0a0a]">
+      <View className="mb-10">
+        <Text className="text-white text-4xl font-extrabold tracking-tight mb-2">
+          Welcome back
+        </Text>
+        <Text className="text-gray-400 text-base">
+          Sign in to continue to your chats
+        </Text>
+      </View>
 
-      <TextInput
-        keyboardType="email-address"
-        placeholder="Email"
-        placeholderTextColor="gray"
-        value={email}
-        onChangeText={setEmail}
-        className="bg-gray-800 text-white p-4 rounded mb-4"
-      />
+      <View className="space-y-4">
+        <TextInput
+          keyboardType="email-address"
+          placeholder="Email address"
+          placeholderTextColor="#6b7280"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          className="bg-[#171717] border border-[#262626] text-white px-5 py-4 rounded-2xl text-base mb-4"
+        />
 
-      <TextInput
-        placeholder="Password"
-        placeholderTextColor="gray"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        className="bg-gray-800 text-white p-4 rounded mb-6"
-      />
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor="#6b7280"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          className="bg-[#171717] border border-[#262626] text-white px-5 py-4 rounded-2xl text-base mb-6"
+        />
+      </View>
 
       <Pressable
         onPress={handleLogin}
-        className="bg-blue-600 p-4 rounded items-center"
+        disabled={loading}
+        className={`bg-blue-600 py-4 rounded-2xl items-center shadow-sm shadow-blue-900/20 ${
+          loading ? "opacity-70" : "active:opacity-80"
+        }`}
       >
         {loading ? (
           <ActivityIndicator color="white" />
         ) : (
-          <Text className="text-white font-bold">
-            Login
-          </Text>
+          <Text className="text-white font-semibold text-lg">Login</Text>
         )}
       </Pressable>
 
-      <Pressable
-        onPress={() => router.push("/(auth)/register")}
-        className="mt-4"
-      >
-        <Text className="text-gray-400 text-center">
-          Dont have an account? <Link href="/register">Register</Link>
-        </Text>
-      </Pressable>
+      <View className="mt-8 flex-row justify-center items-center">
+        <Text className="text-gray-400 text-base">Dont have an account? </Text>
+        <Link href="/(auth)/register" asChild>
+          <Pressable>
+            <Text className="text-blue-500 font-semibold text-base">Register</Text>
+          </Pressable>
+        </Link>
+      </View>
     </View>
   );
 }

@@ -37,16 +37,17 @@ export default function NewChatScreen() {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="p-4 border-b">
-        <Text className="text-xl font-bold">Start New Chat</Text>
+      <View className="px-12 pt-12 pb-4 border-b border-gray-100">
+        <Text className="text-2xl font-extrabold text-gray-900">Start New Chat</Text>
       </View>
 
       <FlatList
         data={users}
         keyExtractor={(item) => item._id}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <TouchableOpacity
-            className="flex-row items-center p-4 border-b"
+            className="flex-row items-center px-6 py-4 border-b border-gray-50 active:bg-gray-50"
             onPress={() =>
               router.push({
                 pathname: "/(main)/chats/[userId]",
@@ -61,13 +62,16 @@ export default function NewChatScreen() {
               source={{
                 uri: item.profilePic || "https://i.pravatar.cc/100",
               }}
-              className="w-12 h-12 rounded-full"
+              className="w-12 h-12 rounded-full bg-gray-200"
             />
 
-            <View className="ml-3">
-              <Text className="text-lg font-semibold">{item.username}</Text>
-
-              <Text className="text-gray-500">{item.email}</Text>
+            <View className="ml-4 flex-1">
+              <Text className="text-base font-semibold text-gray-900 mb-0.5">
+                {item.username}
+              </Text>
+              <Text className="text-sm text-gray-500" numberOfLines={1}>
+                {item.email}
+              </Text>
             </View>
           </TouchableOpacity>
         )}
